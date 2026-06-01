@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@800&display=swap" rel="stylesheet">
+<style>
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-50px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  body { 
+    display: flex; flex-direction: column; justify-content: center; align-items: center; 
+    min-height: 100vh; margin: 0; background: #000b1a; font-family: 'Segoe UI', sans-serif; 
+    padding: 20px; box-sizing: border-box;
+    animation: slideIn 0.8s ease-out;
+  }
+  
+  .page-title { 
+    color: #FFD700; font-family: 'Poppins', sans-serif; 
+    font-size: clamp(28px, 6vw, 40px); font-weight: 800; 
+    margin-bottom: 20px; text-transform: uppercase; 
+    text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+    text-align: center;
+  }
+  
+  .form-container { 
+    background: #ffffff; padding: 40px; border-radius: 20px; 
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5); width: 100%; max-width: 350px; 
+    text-align: center; border: 3px solid #001a33; box-sizing: border-box;
+  }
+  
+  .sub-header { color: #555; font-size: 14px; margin-bottom: 25px; }
+
+  h2 { color: #001a33; margin-top: 0; font-family: 'Poppins', sans-serif; }
+  input { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #001a33; border-radius: 10px; box-sizing: border-box; }
+  button { width: 100%; padding: 12px; background: #001a33; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 15px; transition: 0.3s; }
+  button:hover { background: #002d5a; transform: scale(1.02); }
+  
+  .hidden { display: none; }
+  .toggle-link { margin-top: 20px; font-size: 14px; color: #555; cursor: pointer; }
+  .toggle-link span { color: #001a33; font-weight: bold; text-decoration: underline; }
+  
+  .instructions { margin-top: 25px; padding: 15px; background: #001a33; color: #ffffff; border-radius: 10px; font-size: 13px; text-align: left; }
+  .instructions p { margin: 5px 0; }
+  
+  /* Message Box Design */
+  #message-box { 
+    position: fixed; top: 20px; padding: 15px 25px; border-radius: 10px; 
+    color: #ffffff; font-weight: bold; display: none; z-index: 1000; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4); 
+    border: 2px solid #ffffff; max-width: 90%; text-align: center;
+  }
+  .success-bg { background-color: #28a745; } 
+  .error-bg { background-color: #dc3545; color: #ffffff; } 
+  .warning-bg { background-color: #f39c12; color: #ffffff; } 
+
+  /* New Dividers and Third-Party Buttons Styling */
+  .divider {
+    display: flex; align-items: center; text-align: center; color: #777; font-size: 13px; margin: 20px 0;
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1; border-bottom: 1px solid #ccc;
+  }
+  .divider:not(:empty)::before { margin-right: .5em; }
+  .divider:not(:empty)::after { margin-left: .5em; }
+
+  .google-btn {
+    display: flex; align-items: center; justify-content: center; background-color: #ffffff;
+    color: #1f1f1f; border: 2px solid #001a33; border-radius: 10px; padding: 11px;
+    font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 10px;
+  }
+  .google-btn img { width: 18px; height: 18px; margin-right: 10px; }
+  .google-btn:hover { background-color: #f1f5f9; transform: scale(1.02); }
+
+  .phone-toggle-btn {
+    background: #ffffff; color: #001a33; border: 2px solid #001a33; margin-top: 10px;
+  }
+  .phone-toggle-btn:hover { background: #e6f0fa; }
+</style>
+</head>
+<body>
+
+<div id="message-box"></div>
+
+<div class="page-title">Welcome to KSA Dashboard</div>
+
+<div class="form-container">
+  <div class="sub-header">Please Login or Sign Up to continue</div>
+
+  <div id="signup-box">
+    <h2>Sign Up</h2>
+    <input type="text" id="name" placeholder="Full Name">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button id="signup-btn">Create Account</button>
+    
+    <div class="divider">OR</div>
+    <button id="google-signup-btn" class="google-btn">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google"> Continue with Google
+    </button>
+
+    <p class="toggle-link">Already have an account? <span onclick="toggleForm()">Login</span></p>
+  </div>
+
+  <div id="login-box" class="hidden">
+    <h2>Login</h2>
+    
+    <div id="email-login-fields">
+      <input type="email" id="login-email" placeholder="Email">
+      <input type="password" id="login-password" placeholder="Password">
+      <button id="login-btn">Login with Email</button>
+      <button type="button" class="google-btn phone-toggle-btn" onclick="togglePhoneLogin(true)">Login with Phone Number</button>
+    </div>
+
+    <div id="phone-login-fields" class="hidden">
+      <input type="text" id="phone-number" placeholder="+923001234567">
+      <div id="recaptcha-container"></div>
+      <button id="send-otp-btn">Send Verification Code</button>
+      
+      <div id="otp-verification-section" class="hidden">
+        <input type="text" id="otp-code" placeholder="Enter 6-Digit OTP">
+        <button id="verify-otp-btn">Verify & Login</button>
+      </div>
+      <button type="button" class="google-btn phone-toggle-btn" onclick="togglePhoneLogin(false)">Back to Email Login</button>
+    </div>
+
+    <div class="divider">OR</div>
+    <button id="google-login-btn" class="google-btn">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google"> Continue with Google
+    </button>
+
+    <p class="toggle-link">Don't have an account? <span onclick="toggleForm()">Sign up</span></p>
+  </div>
+
+  <div class="instructions">
+    <p><strong>1. Sign Up:</strong> Create your account with your email or Google.</p>
+    <p><strong>2. Verify:</strong> If using Email, check your Gmail inbox to verify.</p>
+    <p><strong>3. Quick Access:</strong> You can also use Google or Phone option for quick login.</p>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+  import { 
+    getAuth, 
+    createUserWithEmailAndPassword, 
+    signInWithEmailAndPassword, 
+    sendEmailVerification,
+    GoogleAuthProvider,
+    signInWithPopup,
+    RecaptchaVerifier,
+    signInWithPhoneNumber
+  } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDbetXliltJch9AinFhv9YVVjTTRu2OeSM",
+    authDomain: "ksa--website.firebaseapp.com",
+    projectId: "ksa--website",
+    storageBucket: "ksa--website.firebasestorage.app",
+    messagingSenderId: "885533720684",
+    appId: "1:885533720684:web:5193b02b79195ed5e49849",
+    measurementId: "G-CMB96082SX"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const googleProvider = new GoogleAuthProvider();
+  let confirmationResultObj = null;
+
+  const showMessage = (text, type = 'success') => {
+    const box = document.getElementById('message-box');
+    box.innerText = text;
+    if(type === 'error') box.className = 'error-bg';
+    else if(type === 'warning') box.className = 'warning-bg';
+    else box.className = 'success-bg';
+    box.style.display = 'block';
+    setTimeout(() => { box.style.display = 'none'; }, 6000);
+  };
+
+  window.toggleForm = () => {
+    document.getElementById('signup-box').classList.toggle('hidden');
+    document.getElementById('login-box').classList.toggle('hidden');
+    // Phone toggle resets automatically back to default view
+    togglePhoneLogin(false);
+  };
+
+  window.togglePhoneLogin = (showPhone) => {
+    if(showPhone) {
+      document.getElementById('email-login-fields').classList.add('hidden');
+      document.getElementById('phone-login-fields').classList.remove('hidden');
+    } else {
+      document.getElementById('email-login-fields').classList.remove('hidden');
+      document.getElementById('phone-login-fields').classList.add('hidden');
+    }
+  };
+
+  // --- EMAIL/PASSWORD SIGN UP ---
+  document.getElementById("signup-btn").addEventListener("click", () => {
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    if (!name || !email || !password) {
+      showMessage("⚠️ Please fill in all fields (Name, Email, Password).", 'warning');
+      return;
+    }
+    
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        sendEmailVerification(userCredential.user);
+        showMessage("🎉 Congratulations! Account created. Please check your Inbox. If you don't see it, please check your Spam folder.");
+      })
+      .catch((err) => {
+        if (err.code === 'auth/email-already-in-use') showMessage("⚠️ Error: Email already registered.", 'error');
+        else if (err.code === 'auth/invalid-email') showMessage("⚠️ Error: Please enter a valid email address.", 'error');
+        else showMessage("⚠️ Error: " + err.message, 'error');
+      });
+  });
+
+  // --- EMAIL/PASSWORD LOGIN ---
+  document.getElementById("login-btn").addEventListener("click", () => {
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-password").value;
+
+    if (!email || !password) {
+      showMessage("⚠️ Please fill in both Email and Password fields.", 'warning');
+      return;
+    }
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        if (userCredential.user.emailVerified) {
+          showMessage("✅ Login Successful! Redirecting...");
+          setTimeout(() => { window.location.href = "welcome.html"; }, 2000);
+        } else {
+          showMessage("⚠️ Please verify your email address in Gmail first!", 'error');
+        }
+      })
+      .catch((err) => {
+        if (err.code === 'auth/user-not-found') showMessage("⚠️ Error: Account not found.", 'error');
+        else showMessage("⚠️ Login Failed: Incorrect email or password.", 'error');
+      });
+  });
+
+  // --- GOOGLE SIGN IN LOGIC (Both Buttons) ---
+  const handleGoogleSignIn = () => {
+    signInWithPopup(auth, googleProvider)
+      .then((result) => {
+        showMessage(`✅ Welcome ${result.user.displayName}! Login Successful.`);
+        setTimeout(() => { window.location.href = "welcome.html"; }, 2000);
+      })
+      .catch((err) => {
+        showMessage("⚠️ Google Sign-In Failed: " + err.message, 'error');
+      });
+  };
+
+  document.getElementById("google-signup-btn").addEventListener("click", handleGoogleSignIn);
+  document.getElementById("google-login-btn").addEventListener("click", handleGoogleSignIn);
+
+  // --- PHONE NUMBER SIGN IN LOGIC ---
+  
+  // Invisible Recaptcha verification setup
+  const setupRecaptcha = () => {
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+        'callback': (response) => {
+          // reCAPTCHA solved
+        }
+      });
+    }
+  };
+
+  document.getElementById("send-otp-btn").addEventListener("click", () => {
+    const phoneNumber = document.getElementById("phone-number").value.trim();
+    if (!phoneNumber) {
+      showMessage("⚠️ Please enter your phone number with country code (e.g. +923001234567).", 'warning');
+      return;
+    }
+
+    setupRecaptcha();
+    const appVerifier = window.recaptchaVerifier;
+
+    signInWithPhoneNumber(auth, phoneNumber, appVerifier)
+      .then((confirmationResult) => {
+        confirmationResultObj = confirmationResult;
+        document.getElementById("otp-verification-section").classList.remove("hidden");
+        document.getElementById("send-otp-btn").classList.add("hidden");
+        showMessage("📩 OTP Code has been sent to your phone number!");
+      })
+      .catch((err) => {
+        showMessage("⚠️ Failed to send SMS: " + err.message, 'error');
+        if(window.recaptchaVerifier) {
+          window.recaptchaVerifier.clear();
+          window.recaptchaVerifier = null;
+        }
+      });
+  });
+
+  document.getElementById("verify-otp-btn").addEventListener("click", () => {
+    const code = document.getElementById("otp-code").value.trim();
+    if (!code) {
+      showMessage("⚠️ Please enter the 6-digit OTP code.", 'warning');
+      return;
+    }
+
+    if (!confirmationResultObj) {
+      showMessage("⚠️ Something went wrong. Please request a new OTP.", 'error');
+      return;
+    }
+
+    confirmationResultObj.confirm(code)
+      .then((result) => {
+        showMessage("✅ Phone Login Successful! Redirecting...");
+        setTimeout(() => { window.location.href = "welcome.html"; }, 2000);
+      })
+      .catch((err) => {
+        showMessage("⚠️ Invalid OTP Code. Please try again.", 'error');
+      });
+  });
+
+</script>
+</body>
+</html>
