@@ -72,11 +72,6 @@
   }
   .google-btn img { width: 18px; height: 18px; margin-right: 10px; }
   .google-btn:hover { background-color: #f1f5f9; transform: scale(1.02); }
-
-  .phone-toggle-btn {
-    background: #ffffff; color: #001a33; border: 2px solid #001a33; margin-top: 10px;
-  }
-  .phone-toggle-btn:hover { background: #e6f0fa; }
 </style>
 </head>
 <body>
@@ -110,19 +105,6 @@
       <input type="email" id="login-email" placeholder="Email">
       <input type="password" id="login-password" placeholder="Password">
       <button id="login-btn">Login with Email</button>
-      <button type="button" class="google-btn phone-toggle-btn" onclick="togglePhoneLogin(true)">Login with Phone Number</button>
-    </div>
-
-    <div id="phone-login-fields" class="hidden">
-      <input type="text" id="phone-number" placeholder="+923001234567">
-      <div id="recaptcha-container"></div>
-      <button id="send-otp-btn">Send Verification Code</button>
-      
-      <div id="otp-verification-section" class="hidden">
-        <input type="text" id="otp-code" placeholder="Enter 6-Digit OTP">
-        <button id="verify-otp-btn">Verify & Login</button>
-      </div>
-      <button type="button" class="google-btn phone-toggle-btn" onclick="togglePhoneLogin(false)">Back to Email Login</button>
     </div>
 
     <div class="divider">OR</div>
@@ -136,7 +118,7 @@
   <div class="instructions">
     <p><strong>1. Sign Up:</strong> Create your account with your email or Google.</p>
     <p><strong>2. Verify:</strong> If using Email, check your Gmail inbox to verify.</p>
-    <p><strong>3. Quick Access:</strong> You can also use Google or Phone option for quick login.</p>
+    <p><strong>3. Quick Access:</strong> You can also use Google option for quick login.</p>
   </div>
 </div>
 
@@ -148,9 +130,7 @@
     signInWithEmailAndPassword, 
     sendEmailVerification,
     GoogleAuthProvider,
-    signInWithPopup,
-    RecaptchaVerifier,
-    signInWithPhoneNumber
+    signInWithPopup
   } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
 
   const firebaseConfig = {
@@ -166,7 +146,6 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const googleProvider = new GoogleAuthProvider();
-  let confirmationResultObj = null;
 
   const showMessage = (text, type = 'success') => {
     const box = document.getElementById('message-box');
@@ -181,18 +160,6 @@
   window.toggleForm = () => {
     document.getElementById('signup-box').classList.toggle('hidden');
     document.getElementById('login-box').classList.toggle('hidden');
-    // Phone toggle resets automatically back to default view
-    togglePhoneLogin(false);
-  };
-
-  window.togglePhoneLogin = (showPhone) => {
-    if(showPhone) {
-      document.getElementById('email-login-fields').classList.add('hidden');
-      document.getElementById('phone-login-fields').classList.remove('hidden');
-    } else {
-      document.getElementById('email-login-fields').classList.remove('hidden');
-      document.getElementById('phone-login-fields').classList.add('hidden');
-    }
   };
 
   // --- EMAIL/PASSWORD SIGN UP ---
@@ -257,68 +224,6 @@
 
   document.getElementById("google-signup-btn").addEventListener("click", handleGoogleSignIn);
   document.getElementById("google-login-btn").addEventListener("click", handleGoogleSignIn);
-
-  // --- PHONE NUMBER SIGN IN LOGIC ---
-  
-  // Invisible Recaptcha verification setup
-  const setupRecaptcha = () => {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'invisible',
-        'callback': (response) => {
-          // reCAPTCHA solved
-        }
-      });
-    }
-  };
-
-  document.getElementById("send-otp-btn").addEventListener("click", () => {
-    const phoneNumber = document.getElementById("phone-number").value.trim();
-    if (!phoneNumber) {
-      showMessage("⚠️ Please enter your phone number with country code (e.g. +923001234567).", 'warning');
-      return;
-    }
-
-    setupRecaptcha();
-    const appVerifier = window.recaptchaVerifier;
-
-    signInWithPhoneNumber(auth, phoneNumber, appVerifier)
-      .then((confirmationResult) => {
-        confirmationResultObj = confirmationResult;
-        document.getElementById("otp-verification-section").classList.remove("hidden");
-        document.getElementById("send-otp-btn").classList.add("hidden");
-        showMessage("📩 OTP Code has been sent to your phone number!");
-      })
-      .catch((err) => {
-        showMessage("⚠️ Failed to send SMS: " + err.message, 'error');
-        if(window.recaptchaVerifier) {
-          window.recaptchaVerifier.clear();
-          window.recaptchaVerifier = null;
-        }
-      });
-  });
-
-  document.getElementById("verify-otp-btn").addEventListener("click", () => {
-    const code = document.getElementById("otp-code").value.trim();
-    if (!code) {
-      showMessage("⚠️ Please enter the 6-digit OTP code.", 'warning');
-      return;
-    }
-
-    if (!confirmationResultObj) {
-      showMessage("⚠️ Something went wrong. Please request a new OTP.", 'error');
-      return;
-    }
-
-    confirmationResultObj.confirm(code)
-      .then((result) => {
-        showMessage("✅ Phone Login Successful! Redirecting...");
-        setTimeout(() => { window.location.href = "welcome.html"; }, 2000);
-      })
-      .catch((err) => {
-        showMessage("⚠️ Invalid OTP Code. Please try again.", 'error');
-      });
-  });
 
 </script>
 </body>
